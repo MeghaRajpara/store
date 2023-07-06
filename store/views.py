@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
-from .models import Product, Collection, OrderItem
-from .serializers import ProductSerializers, CollectionSerializers
+from .models import Product, Collection, OrderItem, Review
+from .serializers import ProductSerializers, CollectionSerializers, ReviewSerializers
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
@@ -38,3 +38,12 @@ class CollectionViewSet(ModelViewSet):
 class CollectionList(ListCreateAPIView):
     queryset = Collection.objects.annotate(products_count=Count('products')).all()
     serializer_class = CollectionSerializers
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializers
+
+    def get_queryset(self):
+        return Review.objects.filter(product_id=self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+        return {'product_id': self.kwargs['product_pk']}
